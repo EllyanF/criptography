@@ -45,11 +45,13 @@ class TransactionRecordController {
     public async update(@request() req: Request, @response() res: Response): Promise<Response> {
         try {
             const updateValues: TransactionRecord = req.body;
-            const updatedRecord = transactionRecord.findOneAndUpdate({
-                id: req.params.id
-            }, updateValues)
+            const validationError = new transactionRecord(updateValues).validateSync();
 
-            return res.json(updatedRecord);
+            if (validationError) return res.status(400).json({
+                error: validationError.message
+            });
+
+            return res.json(this.service.encrypt(updateValues));
         } catch (error) {
             return res.status(500).json(error)
         }

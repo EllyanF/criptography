@@ -6,12 +6,10 @@ import { TransactionRecord } from '../types/transaction-record.type';
 @injectable()
 class CriptographyService {
     private algorithm = 'aes-256-cbc';
-    private initVector = randomBytes(16);
     private securityKey = process.env.SECURITY_KEY as string;
     private fieldsToEncrypt = ['userDocument', 'creditCardToken'];
 
     public encrypt(record: TransactionRecord): TransactionRecord {
-        console.log(randomBytes(32).toString('base64'))
         return Object.fromEntries(
             Object.entries(record).map(([key, value]) => [
                 key,
@@ -40,12 +38,14 @@ class CriptographyService {
 
     private encryptField(value: string): string {
         const securityKey = this.securityKeyToBuffer();
+        const initVector = randomBytes(16);
 
         const cipher = createCipheriv(
-            this.algorithm, securityKey, this.initVector
+            this.algorithm, securityKey, initVector
         );
 
-        const ivToHex = this.initVector.toString('hex');
+        const ivToHex = initVector.toString('hex');
+
         const encryptedValue = cipher.update(value, 'utf-8', 'hex') + cipher.final('hex');
 
         return ivToHex + encryptedValue;
