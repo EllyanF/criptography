@@ -16,7 +16,6 @@ class TransactionRecordController {
     @httpPost('/create')
     public async create(@request() req: Request, @response() res: Response): Promise<Response> {
         try {
-            await transactionRecord.init();
             const newRecord: TransactionRecord = req.body;
             const encryptedRecord = this.service.encrypt(newRecord);
             const savedRecord = await transactionRecord.create(encryptedRecord)
