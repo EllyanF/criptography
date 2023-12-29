@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+import { createCipheriv, createDecipheriv, randomBytes } from 'crypto';
 import { injectable } from 'inversify';
 
 import { TransactionRecord } from '../types/transaction-record.type';
@@ -6,11 +6,12 @@ import { TransactionRecord } from '../types/transaction-record.type';
 @injectable()
 class CriptographyService {
     private algorithm = 'aes-256-cbc';
-    private initVector = crypto.randomBytes(16);
+    private initVector = randomBytes(16);
     private securityKey = process.env.SECURITY_KEY as string;
     private fieldsToEncrypt = ['userDocument', 'creditCardToken'];
 
     public encrypt(record: TransactionRecord): TransactionRecord {
+        console.log(randomBytes(32).toString('base64'))
         return Object.fromEntries(
             Object.entries(record).map(([key, value]) => [
                 key,
@@ -40,7 +41,7 @@ class CriptographyService {
     private encryptField(value: string): string {
         const securityKey = this.securityKeyToBuffer();
 
-        const cipher = crypto.createCipheriv(
+        const cipher = createCipheriv(
             this.algorithm, securityKey, this.initVector
         );
 
@@ -56,7 +57,7 @@ class CriptographyService {
         const initVector = Buffer.from(encrypted.slice(0, 32), 'hex');
         const encryptedField = Buffer.from(encrypted.slice(32), 'hex');
 
-        const decipher = crypto.createDecipheriv(
+        const decipher = createDecipheriv(
             this.algorithm, securityKey, initVector
         );
 
